@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:todo/ui/screens/Profile_details_screen.dart';
+import 'package:todo/ui/screens/Update_Profile_screen.dart';
 
 import '../../data/models/auth_utility.dart';
 import '../auth/login_screen.dart';
@@ -60,6 +61,10 @@ class _UserProfileBannerState extends State<UserProfileBanner> {
                 child: Text('Profile Details'),
               ),
               const PopupMenuItem(
+                value: 'Update_Profile',
+                child: Text('Update Profile'),
+              ),
+              const PopupMenuItem(
                 value: 'logout',
                 child: Text('Logout'),
               ),
@@ -72,7 +77,14 @@ class _UserProfileBannerState extends State<UserProfileBanner> {
                     MaterialPageRoute(builder: (context) => const pDetails()),
                   );
                 }
-                // TODO: Implement showing profile details
+              } else if (value == 'Update_Profile') {
+                if (mounted) {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                        builder: (context) => const UpdateProfileScreen()),
+                  );
+                }
               } else if (value == 'logout') {
                 await AuthUtility.clearUserInfo();
                 if (mounted) {

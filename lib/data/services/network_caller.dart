@@ -12,9 +12,9 @@ import '../models/network_response.dart';
 class NetworkCaller {
   Future<NetworkResponse> getRequest(String url) async {
     try {
+      log(url);
       Response response = await get(Uri.parse(url),
           headers: {'token': AuthUtility.userInfo.token.toString()});
-      log(AuthUtility.userInfo.token.toString());
       log(response.statusCode.toString());
       log(response.body);
       if (response.statusCode == 200) {
@@ -34,6 +34,7 @@ class NetworkCaller {
   Future<NetworkResponse> postRequest(String url, Map<String, dynamic> body,
       {bool isLogin = false}) async {
     try {
+      log(body.toString());
       Response response = await post(
         Uri.parse(url),
         headers: {
@@ -51,7 +52,7 @@ class NetworkCaller {
           jsonDecode(response.body),
         );
       } else if (response.statusCode == 401) {
-        if (isLogin) {
+        if (isLogin == false) {
           gotoLogin();
         }
       } else {

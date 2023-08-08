@@ -6,12 +6,23 @@ class Urls {
   static String login = '$_baseUrl/login';
   static String createTask = '$_baseUrl/createTask';
   static String taskStatusCount = '$_baseUrl/taskStatusCount';
-
   static String newTasks = '$_baseUrl/listTaskByStatus/New';
   static String inProgressTasks = '$_baseUrl/listTaskByStatus/Progress';
+  //static String inProgressTasks = '$_baseUrl/listTaskByStatus/Progress';
   static String cancelledTasks = '$_baseUrl/listTaskByStatus/Cancel';
   static String completedTask = '$_baseUrl/listTaskByStatus/Completed';
+  //static String deleteTask(String id) => '$_baseUrl/deleteTask/$id';
 
-  static String deleteTask = '$_baseUrl/deleteTask/';
+  static String updateTask(String id, String status) =>
+      '$_baseUrl/updateTaskStatus/$id/$status';
+
+  static String updateProfile = '$_baseUrl/profileUpdate';
+  static String sendOtpToEmail(String email) =>
+      '$_baseUrl/RecoverVerifyEmail/$email';
+  static String otpVerify(String email, String otp) =>
+      '$_baseUrl/RecoverVerifyOTP/$email/$otp';
+  static String resetPassword = '$_baseUrl/RecoverResetPass';
+
   static String updateTaskStatus = '$_baseUrl/updateTaskStatus/';
+  static String deleteTask = '$_baseUrl/deleteTask/';
 }

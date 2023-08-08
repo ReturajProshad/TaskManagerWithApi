@@ -27,15 +27,14 @@ class _SignUpScreenState extends State<SignUpScreen> {
     if (mounted) {
       setState(() {});
     }
-    // final bytes = _image.readAsBytesSync();
+
     Map<String, dynamic> requestBody = {
       "email": _emailTEController.text.trim(),
       "firstName": _firstNameTEController.text.trim(),
       "lastName": _lastNameTEController.text.trim(),
       "mobile": _mobileTEController.text.trim(),
       "password": _passwordTEController.text,
-      // ignore: unnecessary_null_comparison
-      "photo": "",
+      "photo": ""
     };
 
     final NetworkResponse response =
@@ -50,7 +49,6 @@ class _SignUpScreenState extends State<SignUpScreen> {
       _firstNameTEController.clear();
       _lastNameTEController.clear();
       _mobileTEController.clear();
-
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(content: Text('Registration success!')));

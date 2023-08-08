@@ -22,7 +22,7 @@ class pDetails extends StatelessWidget {
                 },
                 radius: 50,
               ),
-              SizedBox(
+              const SizedBox(
                 height: 10,
               ),
               Text(
@@ -30,19 +30,19 @@ class pDetails extends StatelessWidget {
                 style: const TextStyle(
                     fontSize: 24, color: Color.fromARGB(255, 224, 12, 12)),
               ),
-              SizedBox(
+              const SizedBox(
                 height: 8,
               ),
               Text(
-                '${AuthUtility.userInfo.data?.email ?? ''}',
+                AuthUtility.userInfo.data?.email ?? '',
                 style: const TextStyle(
                     fontSize: 20, color: Color.fromARGB(255, 224, 12, 12)),
               ),
-              SizedBox(
+              const SizedBox(
                 height: 8,
               ),
               Text(
-                '${AuthUtility.userInfo.data?.mobile ?? ''}',
+                AuthUtility.userInfo.data?.mobile ?? '',
                 style: const TextStyle(
                     fontSize: 20, color: Color.fromARGB(255, 224, 12, 12)),
               ),
