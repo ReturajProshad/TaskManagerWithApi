@@ -1,55 +1,20 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
+import 'package:todo/ui/state_manager/In_Progress_Task_Controller.dart';
 
-import '../../data/models/network_response.dart';
-import '../../data/models/task_list_model.dart';
-import '../../data/services/network_caller.dart';
-import '../../data/utils/urls.dart';
 import '../widgets/task_list_tile.dart';
 import '../widgets/user_profile_banner.dart';
 
 class InProgressTaskScreen extends StatefulWidget {
-  const InProgressTaskScreen({Key? key}) : super(key: key);
+  InProgressTaskScreen({super.key});
 
   @override
   State<InProgressTaskScreen> createState() => _InProgressTaskScreenState();
 }
 
 class _InProgressTaskScreenState extends State<InProgressTaskScreen> {
-  bool _getProgressTasksInProgress = false;
-  TaskListModel _taskListModel = TaskListModel();
-
-  Future<void> getInProgressTasks() async {
-    _getProgressTasksInProgress = true;
-    if (mounted) {
-      setState(() {});
-    }
-    final NetworkResponse response =
-        await NetworkCaller().getRequest(Urls.inProgressTasks);
-    if (response.isSuccess) {
-      _taskListModel = TaskListModel.fromJson(response.body!);
-    } else {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('In progress tasks get failed')));
-      }
-    }
-    _getProgressTasksInProgress = false;
-    if (mounted) {
-      setState(() {});
-    }
-  }
-
-  void refreshTasks() async {
-    getInProgressTasks();
-  }
-
-  @override
-  void initState() {
-    super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
-      getInProgressTasks();
-    });
-  }
+  final InProgressTaskController controller =
+      Get.put(InProgressTaskController());
 
   @override
   Widget build(BuildContext context) {
@@ -57,23 +22,26 @@ class _InProgressTaskScreenState extends State<InProgressTaskScreen> {
       body: SafeArea(
         child: Column(
           children: [
-            UserProfileBanner(onRefresh: () {}),
+            UserProfileBanner(onRefresh: () {
+              controller.getInProgressTasks();
+            }),
             Expanded(
-              child: _getProgressTasksInProgress
+              child: Obx(() => controller.getProgressTasksInProgress.value
                   ? const Center(
                       child: CircularProgressIndicator(),
                     )
                   : RefreshIndicator(
                       onRefresh: () async {
-                        getInProgressTasks();
+                        controller.getInProgressTasks();
                       },
                       child: ListView.separated(
-                        itemCount: _taskListModel.data?.length ?? 0,
+                        itemCount:
+                            controller.taskListModel.value.data?.length ?? 0,
                         itemBuilder: (context, index) {
                           return TaskListTile(
-                            data: _taskListModel.data![index],
-                            onTaskDeleted: refreshTasks,
-                            onTaskStatusChange: refreshTasks,
+                            data: controller.taskListModel.value.data![index],
+                            onTaskDeleted: controller.refreshTasks,
+                            onTaskStatusChange: controller.refreshTasks,
                           );
                         },
                         separatorBuilder: (BuildContext context, int index) {
@@ -82,7 +50,7 @@ class _InProgressTaskScreenState extends State<InProgressTaskScreen> {
                           );
                         },
                       ),
-                    ),
+                    )),
             ),
           ],
         ),

@@ -1,83 +1,20 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 
-import '../../data/models/network_response.dart';
 import '../../data/models/summary_count_model.dart';
-import '../../data/models/task_list_model.dart';
-import '../../data/services/network_caller.dart';
-import '../../data/utils/urls.dart';
+import '../state_manager/New_Task_Controller.dart';
 import '../widgets/summary_card.dart';
 import '../widgets/task_list_tile.dart';
 import '../widgets/user_profile_banner.dart';
 import 'add_new_task_screen.dart';
 
 class NewTaskScreen extends StatefulWidget {
-  const NewTaskScreen({Key? key}) : super(key: key);
-
   @override
   State<NewTaskScreen> createState() => _NewTaskScreenState();
 }
 
 class _NewTaskScreenState extends State<NewTaskScreen> {
-  bool _getCountSummaryInProgress = false, _getNewTaskInProgress = false;
-  SummaryCountModel _summaryCountModel = SummaryCountModel();
-  TaskListModel _taskListModel = TaskListModel();
-
-  @override
-  void initState() {
-    super.initState();
-    // after widget binding
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      getCountSummary();
-      getNewTasks();
-    });
-  }
-
-  Future<void> getCountSummary() async {
-    _getCountSummaryInProgress = true;
-    if (mounted) {
-      setState(() {});
-    }
-    final NetworkResponse response =
-        await NetworkCaller().getRequest(Urls.taskStatusCount);
-    if (response.isSuccess) {
-      _summaryCountModel = SummaryCountModel.fromJson(response.body!);
-    } else {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('get new task data failed')));
-      }
-    }
-    _getCountSummaryInProgress = false;
-    if (mounted) {
-      setState(() {});
-    }
-  }
-
-  void refreshTasks() async {
-    getCountSummary();
-    getNewTasks();
-  }
-
-  Future<void> getNewTasks() async {
-    _getNewTaskInProgress = true;
-    if (mounted) {
-      setState(() {});
-    }
-    final NetworkResponse response =
-        await NetworkCaller().getRequest(Urls.newTasks);
-    if (response.isSuccess) {
-      _taskListModel = TaskListModel.fromJson(response.body!);
-    } else {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Summary data get failed')));
-      }
-    }
-    _getNewTaskInProgress = false;
-    if (mounted) {
-      setState(() {});
-    }
-  }
+  final NewTaskController controller = Get.put(NewTaskController());
 
   @override
   Widget build(BuildContext context) {
@@ -85,13 +22,9 @@ class _NewTaskScreenState extends State<NewTaskScreen> {
       body: SafeArea(
         child: Column(
           children: [
-            UserProfileBanner(onRefresh: () {
-              // Call the getNewTasks() method to refresh the data
-              getNewTasks();
-              getCountSummary();
-            }),
-            _getCountSummaryInProgress
-                ? const LinearProgressIndicator()
+            UserProfileBanner(onRefresh: controller.refreshTasks),
+            Obx(() => controller.getCountSummaryInProgress.value
+                ? LinearProgressIndicator()
                 : Padding(
                     padding: const EdgeInsets.all(8.0),
                     child: SizedBox(
@@ -100,29 +33,30 @@ class _NewTaskScreenState extends State<NewTaskScreen> {
                       child: Column(
                         children: [
                           Expanded(
-                            child: buildSummaryCards(),
+                            child: buildSummaryCards(
+                                controller.summaryCountModel.value),
                           ),
                         ],
                       ),
                     ),
-                  ),
+                  )),
             Expanded(
               child: RefreshIndicator(
                 onRefresh: () async {
-                  getNewTasks();
-                  getCountSummary();
+                  controller.refreshTasks();
                 },
-                child: _getNewTaskInProgress
+                child: Obx(() => controller.getNewTaskInProgress.value
                     ? const Center(
                         child: CircularProgressIndicator(),
                       )
                     : ListView.separated(
-                        itemCount: _taskListModel.data?.length ?? 0,
+                        itemCount:
+                            controller.taskListModel.value.data?.length ?? 0,
                         itemBuilder: (context, index) {
                           return TaskListTile(
-                            data: _taskListModel.data![index],
-                            onTaskDeleted: refreshTasks,
-                            onTaskStatusChange: refreshTasks,
+                            data: controller.taskListModel.value.data![index],
+                            onTaskDeleted: controller.refreshTasks,
+                            onTaskStatusChange: controller.refreshTasks,
                           );
                         },
                         separatorBuilder: (BuildContext context, int index) {
@@ -130,7 +64,7 @@ class _NewTaskScreenState extends State<NewTaskScreen> {
                             height: 4,
                           );
                         },
-                      ),
+                      )),
               ),
             ),
           ],
@@ -143,28 +77,27 @@ class _NewTaskScreenState extends State<NewTaskScreen> {
               context,
               MaterialPageRoute(
                   builder: (context) => AddNewTaskScreen(
-                        onAdded: refreshTasks,
+                        onAdded: controller.refreshTasks,
                       )));
         },
       ),
     );
   }
 
-  Widget buildSummaryCards() {
-    // Check if there is no summary data
-    final bool hasSummaryData =
-        _summaryCountModel.data != null && _summaryCountModel.data!.isNotEmpty;
+  Widget buildSummaryCards(SummaryCountModel summaryCountModel) {
+    final hasSummaryData =
+        summaryCountModel.data != null && summaryCountModel.data!.isNotEmpty;
 
     if (hasSummaryData) {
       return ListView.separated(
         scrollDirection: Axis.horizontal,
-        itemCount: _summaryCountModel.data!.length,
+        itemCount: summaryCountModel.data!.length,
         itemBuilder: (context, index) {
           return Row(
             children: [
               SummaryCard(
-                title: _summaryCountModel.data![index].sId ?? 'New',
-                number: _summaryCountModel.data![index].sum ?? 0,
+                title: summaryCountModel.data![index].sId ?? 'New',
+                number: summaryCountModel.data![index].sum ?? 0,
               ),
             ],
           );
@@ -176,9 +109,8 @@ class _NewTaskScreenState extends State<NewTaskScreen> {
         },
       );
     } else {
-      // If there is no summary data, show the Text widget
       return const Center(
-        child: Text("NO ACTIONs RIGHT NOW, Add A Task,swipe Down To refresh"),
+        child: Text("NO ACTIONS RIGHT NOW, Add A Task, Swipe Down To Refresh"),
       );
     }
   }

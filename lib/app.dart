@@ -1,5 +1,14 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:todo/ui/screens/splash_screen.dart';
+import 'package:todo/ui/state_manager/Cancelled_task_screen_controller.dart';
+import 'package:todo/ui/state_manager/In_Progress_Task_Controller.dart';
+import 'package:todo/ui/state_manager/completed_task_controller.dart';
+import 'package:todo/ui/state_manager/email_verification_controller.dart';
+import 'package:todo/ui/state_manager/signup_screen_controller.dart';
+
+import 'ui/state_manager/add_new_task_controller.dart';
+import 'ui/state_manager/login_controller.dart';
 
 class TaskManagerApp extends StatefulWidget {
   static GlobalKey<NavigatorState> globalKey = GlobalKey<NavigatorState>();
@@ -12,7 +21,7 @@ class TaskManagerApp extends StatefulWidget {
 class _TaskManagerAppState extends State<TaskManagerApp> {
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
+    return GetMaterialApp(
       navigatorKey: TaskManagerApp.globalKey,
       title: 'Task Manager',
       theme: ThemeData(
@@ -68,7 +77,21 @@ class _TaskManagerAppState extends State<TaskManagerApp> {
         ),
       ),
       themeMode: ThemeMode.light,
+      initialBinding: ControllerBinding(),
       home: const SplashScreen(),
     );
+  }
+}
+
+class ControllerBinding extends Bindings {
+  @override
+  void dependencies() {
+    Get.put<LoginController>(LoginController());
+    Get.put<AddNewTaskController>(AddNewTaskController());
+    Get.put<InProgressTaskController>(InProgressTaskController());
+    Get.put<CancelledTaskController>(CancelledTaskController());
+    Get.put<CompletedTaskController>(CompletedTaskController());
+    Get.put<SignUpController>(SignUpController());
+    Get.put<EmailVerificationController>(EmailVerificationController());
   }
 }

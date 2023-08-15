@@ -3,7 +3,8 @@ import 'package:todo/ui/screens/Profile_details_screen.dart';
 import 'package:todo/ui/screens/Update_Profile_screen.dart';
 
 import '../../data/models/auth_utility.dart';
-import '../auth/login_screen.dart';
+
+import '../screens/auth/login_screen.dart';
 
 class UserProfileBanner extends StatefulWidget {
   final VoidCallback onRefresh;
@@ -90,8 +91,7 @@ class _UserProfileBannerState extends State<UserProfileBanner> {
                 if (mounted) {
                   Navigator.pushAndRemoveUntil(
                       context,
-                      MaterialPageRoute(
-                          builder: (context) => const LoginScreen()),
+                      MaterialPageRoute(builder: (context) => LoginScreen()),
                       (route) => false);
                 }
               }

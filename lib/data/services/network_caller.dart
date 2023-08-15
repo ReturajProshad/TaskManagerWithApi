@@ -5,7 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart';
 
 import '../../app.dart';
-import '../../ui/auth/login_screen.dart';
+import '../../ui/screens/auth/login_screen.dart';
 import '../models/auth_utility.dart';
 import '../models/network_response.dart';
 
@@ -68,7 +68,7 @@ class NetworkCaller {
     await AuthUtility.clearUserInfo();
     Navigator.pushAndRemoveUntil(
         TaskManagerApp.globalKey.currentContext!,
-        MaterialPageRoute(builder: (context) => const LoginScreen()),
+        MaterialPageRoute(builder: (context) => LoginScreen()),
         (route) => false);
   }
 }

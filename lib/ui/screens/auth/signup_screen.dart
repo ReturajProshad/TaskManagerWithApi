@@ -1,65 +1,27 @@
 import 'package:flutter/material.dart';
-import '../../../data/models/network_response.dart';
-import '../../../data/services/network_caller.dart';
-import '../../../data/utils/urls.dart';
-import '../../widgets/screen_background.dart';
+import 'package:get/get.dart';
+import 'package:todo/ui/state_manager/signup_screen_controller.dart';
+import 'package:todo/ui/widgets/screen_background.dart';
 
 class SignUpScreen extends StatefulWidget {
-  const SignUpScreen({Key? key}) : super(key: key);
-
   @override
   State<SignUpScreen> createState() => _SignUpScreenState();
 }
 
 class _SignUpScreenState extends State<SignUpScreen> {
+  final SignUpController controller = Get.put(SignUpController());
+
   final TextEditingController _emailTEController = TextEditingController();
+
   final TextEditingController _firstNameTEController = TextEditingController();
+
   final TextEditingController _lastNameTEController = TextEditingController();
+
   final TextEditingController _mobileTEController = TextEditingController();
+
   final TextEditingController _passwordTEController = TextEditingController();
 
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
-
-  bool _signUpInProgress = false;
-
-  Future<void> userSignUp() async {
-    _signUpInProgress = true;
-    if (mounted) {
-      setState(() {});
-    }
-
-    Map<String, dynamic> requestBody = {
-      "email": _emailTEController.text.trim(),
-      "firstName": _firstNameTEController.text.trim(),
-      "lastName": _lastNameTEController.text.trim(),
-      "mobile": _mobileTEController.text.trim(),
-      "password": _passwordTEController.text,
-      "photo": ""
-    };
-
-    final NetworkResponse response =
-        await NetworkCaller().postRequest(Urls.registration, requestBody);
-    _signUpInProgress = false;
-    if (mounted) {
-      setState(() {});
-    }
-    if (response.isSuccess) {
-      _emailTEController.clear();
-      _passwordTEController.clear();
-      _firstNameTEController.clear();
-      _lastNameTEController.clear();
-      _mobileTEController.clear();
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Registration success!')));
-      }
-    } else {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Registration failed!')));
-      }
-    }
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -166,17 +128,24 @@ class _SignUpScreenState extends State<SignUpScreen> {
                 SizedBox(
                   width: double.infinity,
                   child: Visibility(
-                    visible: _signUpInProgress == false,
+                    visible: !controller.signUpInProgress,
                     replacement:
                         const Center(child: CircularProgressIndicator()),
                     child: ElevatedButton(
-                        onPressed: () {
-                          if (!_formKey.currentState!.validate()) {
-                            return;
-                          }
-                          userSignUp();
-                        },
-                        child: const Icon(Icons.arrow_forward_ios)),
+                      onPressed: () {
+                        if (!_formKey.currentState!.validate()) {
+                          return;
+                        }
+                        controller.userSignUp(
+                          email: _emailTEController.text.trim(),
+                          firstName: _firstNameTEController.text.trim(),
+                          lastName: _lastNameTEController.text.trim(),
+                          mobile: _mobileTEController.text.trim(),
+                          password: _passwordTEController.text,
+                        );
+                      },
+                      child: const Icon(Icons.arrow_forward_ios),
+                    ),
                   ),
                 ),
                 const SizedBox(

@@ -47,7 +47,7 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
             const SnackBar(content: Text('Password reset successful!')));
         Navigator.pushAndRemoveUntil(
             context,
-            MaterialPageRoute(builder: (context) => const LoginScreen()),
+            MaterialPageRoute(builder: (context) => LoginScreen()),
             (route) => false);
       }
     } else {
@@ -158,8 +158,7 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
                               Navigator.pushAndRemoveUntil(
                                   context,
                                   MaterialPageRoute(
-                                      builder: (context) =>
-                                          const LoginScreen()),
+                                      builder: (context) => LoginScreen()),
                                   (route) => false);
                             },
                             child: const Text('Sign in')),

@@ -1,50 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
+import 'package:todo/ui/state_manager/email_verification_controller.dart';
+import 'package:todo/ui/widgets/screen_background.dart';
 
-import '../../data/models/network_response.dart';
-import '../../data/services/network_caller.dart';
-import '../../data/utils/urls.dart';
-import '../widgets/screen_background.dart';
-import 'auth/otp_verification_screen.dart';
-
-class EmailVerificationScreen extends StatefulWidget {
-  const EmailVerificationScreen({Key? key}) : super(key: key);
-
-  @override
-  State<EmailVerificationScreen> createState() =>
-      _EmailVerificationScreenState();
-}
-
-class _EmailVerificationScreenState extends State<EmailVerificationScreen> {
-  bool _emailVerficatinInProgress = false;
-  final TextEditingController _emailTEController = TextEditingController();
-
-  Future<void> sendOTPToEmail() async {
-    _emailVerficatinInProgress = true;
-    if (mounted) {
-      setState(() {});
-    }
-    final NetworkResponse response = await NetworkCaller()
-        .getRequest(Urls.sendOtpToEmail(_emailTEController.text.trim()));
-    _emailVerficatinInProgress = false;
-    if (mounted) {
-      setState(() {});
-    }
-    if (response.isSuccess) {
-      if (mounted) {
-        Navigator.push(
-            context,
-            MaterialPageRoute(
-                builder: (context) => OtpVerificationScreen(
-                      email: _emailTEController.text.trim(),
-                    )));
-      }
-    } else {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-            content: Text('Email verification has been failed!')));
-      }
-    }
-  }
+class EmailVerificationScreen extends StatelessWidget {
+  final EmailVerificationController controller =
+      Get.put(EmailVerificationController());
 
   @override
   Widget build(BuildContext context) {
@@ -77,7 +38,7 @@ class _EmailVerificationScreenState extends State<EmailVerificationScreen> {
                     height: 24,
                   ),
                   TextField(
-                    controller: _emailTEController,
+                    controller: controller.emailTEController,
                     keyboardType: TextInputType.emailAddress,
                     decoration: const InputDecoration(
                       hintText: 'Email',
@@ -88,18 +49,20 @@ class _EmailVerificationScreenState extends State<EmailVerificationScreen> {
                   ),
                   SizedBox(
                     width: double.infinity,
-                    child: Visibility(
-                      visible: _emailVerficatinInProgress == false,
-                      replacement: const Center(
-                        child: CircularProgressIndicator(),
-                      ),
-                      child: ElevatedButton(
-                        onPressed: () {
-                          sendOTPToEmail();
-                        },
-                        child: const Icon(Icons.arrow_circle_right_outlined),
-                      ),
-                    ),
+                    child: Obx(() => Visibility(
+                          visible:
+                              !controller.emailVerificationInProgress.value,
+                          replacement: const Center(
+                            child: CircularProgressIndicator(),
+                          ),
+                          child: ElevatedButton(
+                            onPressed: () {
+                              controller.sendOTPToEmail();
+                            },
+                            child:
+                                const Icon(Icons.arrow_circle_right_outlined),
+                          ),
+                        )),
                   ),
                   const SizedBox(
                     height: 16,
